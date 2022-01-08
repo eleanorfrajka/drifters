@@ -1,0 +1,5 @@
+.DS_Store
+.ipynb_checkpoints
+__pycache__
+02-intermediate
+01-raw

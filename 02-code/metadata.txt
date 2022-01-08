@@ -1,0 +1,112 @@
+
+
+Distribution file structure
+
+--------------------------------------------------------------------------------
+							~ ~ Summary steps ~ ~
+1. create directory tree below
+
+2. clone repo in terific_nocs/drifter_scripts/
+	> git clone git@git.noc.ac.uk:odrag/terific-drifter.git drifter_scripts/
+
+3. activate conda environment
+Tips for creating a conda env: https://currents.soest.hawaii.edu/ocn_data_analysis/installation.html
+** see .yml file for env copy
+
+4. run scripts
+							~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Directory tree:
+
+	terific_nocs	
+		|->  drifter_aux_data/    
+		|->	 drifter_out/ 	     
+		|->	 drifter_scripts/
+				|-> SIO_wrap/
+
+
+--------------------------------------------------------------------------------
+$ terific_nocs/drifter_aux_data/ contains:
+	other geophysical datasets (e.g. ERA, bathymetry, etc)
+
+$ terific_nocs/drifter_scripts/ contains:
+	
+	(main scripts)
+	- SIO_1_raw_data.py
+	- SIO_2_processing.py
+	- SIO_3_plots.py (unfinished)
+
+	> SIO_wrap/					# module
+		-> __init__.py
+		-> dir_tree.py 			# directory structure and paths
+		-> fnames.py 			# filenames
+		-> jlab_python.py 		# some Jlab functions (based on Jonathan Lilly)	
+		-> lowess.py 			# LOWESS method (Elipo et al 2016)
+
+$ terific_nocs/drifter_out/ contains:
+	netcdf files with raw and processed drifter data and with other geophysical properties along the drifter trajectories
+--------------------------------------------------------------------------------
+
+
+** Activate the conda environment [Python 3.9]
+		
+		% conda activate py39
+
+
+>> Download data and parse the text
+	> creates/updates the raw drifter data
+	> filename has timestamp (_yyyymmdd.nc) of the last fully sampled day which
+	is then used to start the download the next time the script is run
+
+		% python SIO_1_raw_data.py
+
+
+>> Process raw data
+	> flag for latitude and San Diego box [num points flagged]
+	> lowess method for lon and lat
+	> interpolate hourly - for which variables?
+	> calculate velocity and apply a threshold [num points flagged]
+	> 
+		% python SIO_2_processing.py
+
+
+>> Load data and plot drifter trajectories
+		- edit the index of the drifter to be plotted/make a prompt so that user inputs the index 
+		
+		% python SIO_3_plots.py
+
+
+>> **Compute other geophysical variables along the drifter trajectory (lost)
+		
+		% python SIO_4_geophysical_prop.py
+
+
+
+
+GitLab
+
+# clone (ssh) :
+> git clone git@git.noc.ac.uk:odrag/terific-drifter.git
+
+git status
+
+# check for changes/update the repo
+git pull
+
+
+git add *
+git commit -m "comments"
+git push origin python-version
+
+
+
+
+
+
+
+
+
+
+
+
