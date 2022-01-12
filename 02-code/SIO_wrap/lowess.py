@@ -31,6 +31,8 @@ def LatLonLocalWess(ti, loni, lati, p, b):
     The arrays x and y contain an equal number of elements; each pair
     (x[i], y[i]) defines a data point in the scatterplot. The function returns
     the estimated (smooth) values of y.
+    
+    # Translated from Shane Elipot's in github:
 
     """
     # don't compute CI just yet - to be added later
