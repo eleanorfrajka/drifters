@@ -1,11 +1,44 @@
 import numpy as np
 import pandas as pd
 
+##################---------   STATUS FUNCTIONS    ---------##################
+
+def latlon_extremes(var, igood):
+    """
+    var   : xarray dataset that containg the 'flag' and lat/lon variables.
+    igood : int or float; value of the good flag
+
+    Prints the min/max of lat and lon.
+
+    <!> This function breaks if the lat/lon variable names change.
+    """
+    # Select lat/lon where flag is good
+    bool_cond = var.flag.values==igood
+
+    if np.count_nonzero(bool_cond):
+        lonmin = var.GPS_Longitude_deg.values[bool_cond].min().astype('str')
+        latmin = var.GPS_Latitude_deg.values[bool_cond].min().astype('str')
+        lonmax = var.GPS_Longitude_deg.values[bool_cond].max().astype('str')
+        latmax = var.GPS_Latitude_deg.values[bool_cond].max().astype('str')
+    
+        print('Lon in ('+lonmin+', '+lonmax+'), Lat in ('+latmin+', '+latmax+')')
+        
+    else:
+        print('No good values remaining')
+#    print('lat min: ', var.GPS_Latitude_deg.values[bool_cond].min())
+#    print('lat max: ', var.GPS_Latitude_deg.values[bool_cond].max())
+#    print('lon min: ', var.GPS_Longitude_deg.values[bool_cond].min())
+#    print('lon max: ', var.GPS_Longitude_deg.values[bool_cond].max())
+    
+
+##################---------   QC FUNCTIONS    ---------##################
+
 def flag_gps_dropout(ds_raw, varname, mode_val, badflag):
     # Find where the variable has the value given by mode_val, and flag them
     ds_raw.flag.values[ds_raw[varname]==mode_val] = badflag
     
-    return ds_raw
+    numflags = num_ibad(ds_raw, badflag)
+    return ds_raw, numflags
 
 def flag_gps_region(ds_raw, varname, varlim, badflag):
     # Find where the variable is outside the region given by
@@ -13,10 +46,22 @@ def flag_gps_region(ds_raw, varname, varlim, badflag):
     lat_logical = np.logical_or(ds_raw[varname]<min(varlim),
                                 ds_raw[varname]>max(varlim))
     ds_raw.flag.values[lat_logical] = badflag
+    numflags = num_ibad(ds_raw, badflag)
     
-    return ds_raw
+    return ds_raw, numflags
 
 
+def flag_vel(ds_raw, varu, varv, varmax, badflag):
+    
+    uvel = ds_raw[varu]
+    vvel = ds_raw[varv]
+    velmag = np.sqrt(np.square(uvel) + np.square(vvel))
+
+    ds_raw.flag.values[velmag > varmax] = badflag
+    
+    numflags = num_ibad(ds_raw, badflag)
+    
+    return ds_raw, numflags
 
 def num_ibad(var, ibad):
     """
@@ -62,3 +107,4 @@ def create_hourly_grid(time_da, ref_time):
     tgrid_sec = (tgrid - ref_time).total_seconds()
 
     return tgrid, tgrid_sec
+
