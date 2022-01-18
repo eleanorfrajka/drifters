@@ -1,5 +1,9 @@
-.DS_Store
-.ipynb_checkpoints
-__pycache__
+TERIFIC_drifters.nc
 02-intermediate
 01-raw
+.DS_Store
+__pycache__
+.ipynb_checkpoints
+NCEI_trajectory_template_v2.0_2016-09-22_181833.673833.nc
+trajectoryIncomplete.cdl.rtf
+NCEIv2.0trajectoryExampleFileTestingv1.0.pdf

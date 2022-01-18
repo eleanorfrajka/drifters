@@ -44,3 +44,7 @@ def cat_interim_path(fname):
 def cat_proc_path(fname):
     output_file_with_path = os.path.join('..','01-data','03-processed',fname)
     return output_file_with_path
+
+def cat_aux_path(fname):
+    output_file_with_path = os.path.join('..','01-data','04-aux',fname)
+    return output_file_with_path
