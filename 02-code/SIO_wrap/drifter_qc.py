@@ -30,7 +30,7 @@ def latlon_extremes(var, igood):
         lonmax = var.GPS_Longitude_deg.values[bool_cond].max().astype('str')
         latmax = var.GPS_Latitude_deg.values[bool_cond].max().astype('str')
     
-        print('Lon in ('+lonmin+', '+lonmax+'), Lat in ('+latmin+', '+latmax+')')
+#        print('Lon in ('+lonmin+', '+lonmax+'), Lat in ('+latmin+', '+latmax+')')
         
     else:
         print('No good values remaining')
@@ -208,32 +208,53 @@ def drifter_flagbad(ds_raw, fields_to_remove, lonname, latname,
     else:
 
         # ----------------------------------------------------
-        # Remove flagged data, otherwise it might affect the lowess filtering
+        # REMOVE FLAGGED DATA - location
+        # ----------------------------------------------------
+        # otherwise it might affect the lowess filtering
         ds_qc = ds_qc.where(ds_qc.flag==good_flagval, drop=True) 
 
         # ----------------------------------------------------
-        # ----------------------------------------------------
         # Calculate velocity - using jlab.latlon2uv
+        # ----------------------------------------------------
         GPSlat = ds_qc[latname].to_numpy()
         GPSlon = ds_qc[lonname].to_numpy()
-        print('doing forward')
+        # Forward direction only to better localise bad GPS
         u_orig, v_orig = jlab.latlon2uv_forward_mine(ds_qc['time_seconds'], GPSlat, GPSlon)
 
         # Add field to the ds_qc dataset
         ds_qc[uvelname] = ('time', u_orig)
         ds_qc[vvelname] = ('time', v_orig)
 
-        # ---------------------------
+        # ----------------------------------------------------
         # Flag the too-high velocities (> 3 m/s)
         ds_qc, numflags3 = flag_vel(ds_qc, uvelname, 
                                     vvelname, val_threshold,
                                     bad_vel_flagvel)
+        
         # Save to attribute dictionary
         qc_attr_dict["velocity_exceed_threshold"] = numflags3
 
-        # Removing flagged data
+        # ----------------------------------------------------
+        # REMOVE FLAGGED DATA - velocity
+        # ----------------------------------------------------
         ds_qc = ds_qc.where(ds_qc.flag==good_flagval, drop=True) 
+        GPSlat = ds_qc[latname].to_numpy()
+        GPSlon = ds_qc[lonname].to_numpy()
 
+        # Recalculate velocity using both forward and backwards
+        u_new, v_new = jlab.latlon2uv(ds_qc['time_seconds'], GPSlat, GPSlon)
+        ds_qc[uvelname] = ('time', u_new)
+        ds_qc[vvelname] = ('time', v_new)
+        
+        # ----------------------------------------------------
+        # Flag the too-high velocities (> 3 m/s)
+        ds_qc, numflags3 = flag_vel(ds_qc, uvelname, 
+                                    vvelname, val_threshold,
+                                    bad_vel_flagvel)
+        
+        if numflags3:
+            print('WARNING WARNING WARNING: There are still bad velocities')
+            print('---\n------\n ------\n ------\n ------\n ------\n ------\n ------\n ---')
         print('Flagged '+str(numflags1)+' for GPS dropouts, '+str(numflags2)+' for region, '+str(numflags3)+' for velo')
     
         doneit = 1
