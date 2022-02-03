@@ -280,3 +280,20 @@ def latlon2uv(time, lat, lon):
 
     return u, v
 
+def latlon2uv_forward_mine(time, lat, lon):
+
+    u_forw, v_forw = latlon2uv_celloop_one(time, lat, lon, 'forward')
+
+#    u = np.zeros(len(lat))
+#    u[0] = u_forw[0]
+#    u[-1] = u_back[-1]
+#    u[1:-1] = 0.5*(u_forw[1:-1] + u_back[1:-1])
+
+#    v = np.zeros(len(lat))
+#    v[0] = v_forw[0]
+#    v[-1] = v_back[-1]
+#    v[1:-1] = 0.5*(v_forw[1:-1] + v_back[1:-1])
+
+    return u_forw, v_forw
+
+

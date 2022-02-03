@@ -151,7 +151,8 @@ def drifter_flagbad(ds_raw, fields_to_remove, lonname, latname,
     - Where the GPS has dropped out (= mode),
     - Where it is outside the North Atlantic box (na_lonlim, na_latlim)
     - Where the velocity is unrealistic (larger than 3 m/s)
-    - Where the time series of longitude and latitude (compared to a one-dimensional five-point median filter) is more than five standard deviations from the five-point median)
+    - Where the time series of longitude and latitude (compared to a one-dimensional five-point median filter)
+        is more than five standard deviations from the five-point median)
 
     Compute the u and v velocities on the QC GPS fixes
     """
@@ -215,7 +216,8 @@ def drifter_flagbad(ds_raw, fields_to_remove, lonname, latname,
         # Calculate velocity - using jlab.latlon2uv
         GPSlat = ds_qc[latname].to_numpy()
         GPSlon = ds_qc[lonname].to_numpy()
-        u_orig, v_orig = jlab.latlon2uv(ds_qc['time_seconds'], GPSlat, GPSlon)
+        print('doing forward')
+        u_orig, v_orig = jlab.latlon2uv_forward_mine(ds_qc['time_seconds'], GPSlat, GPSlon)
 
         # Add field to the ds_qc dataset
         ds_qc[uvelname] = ('time', u_orig)
@@ -224,8 +226,8 @@ def drifter_flagbad(ds_raw, fields_to_remove, lonname, latname,
         # ---------------------------
         # Flag the too-high velocities (> 3 m/s)
         ds_qc, numflags3 = flag_vel(ds_qc, uvelname, 
-                                        vvelname, val_threshold,
-                                        bad_vel_flagvel)
+                                    vvelname, val_threshold,
+                                    bad_vel_flagvel)
         # Save to attribute dictionary
         qc_attr_dict["velocity_exceed_threshold"] = numflags3
 
